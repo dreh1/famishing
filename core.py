@@ -5,11 +5,12 @@ class Actor:
 	deceased = []
 	count = 0
 
-	def __init__(self, name, district):
+	def __init__(self, name, district, female = False):
 		self.name = name
 		self.district = district
 		self.alive = True
-		self.female = False
+		self.female = female
+		self.strength = 0
 		# these feel too... hacky
 		# maybe in the future move the list somewhere else?
 		Actor.list.append(self)
@@ -33,6 +34,7 @@ class Actor:
 		return ['him', 'her'][self.female]
 
 	def die(self):
+		self.alive = False
 		Actor.count -= 1
 		Actor.deceased.append(self)
 		Actor.list.remove(self)
@@ -41,13 +43,17 @@ def assault(attacker, defender, debug = False):
 	attack = random.randint(1,6)
 	defend = random.randint(1,6)
 	if debug:
-		print("rolling {} for {}".format(attack, attacker.name))
-		print("rolling {} for {}".format(defend, defender.name))
+		print("rolling {}+{} for {}".format(attack, attacker.strength, attacker.name))
+		print("rolling {}+{} for {}".format(defend, defender.strength, defender.name))
+	attack += attacker.strength
+	defend += defender.strength
+	if debug:
+		print("difference", attack - defend)
 
 	if attack - defend > 1:
 		print("{} brutally slays {}.".format(attacker.name, defender.name))
 		defender.die()
-	elif attack - defend < 2:
+	elif attack - defend < -1:
 		print("{} assaults {}, but {} quickly overwhelms and kills {}.".format(attacker.name, defender.name, defender.nom(), attacker.acc()))
 		attacker.die()
 	else:
@@ -56,5 +62,7 @@ def assault(attacker, defender, debug = False):
 def demo():
 	Actor('Nix', 1)
 	Actor('Kareem', 2)
+	Actor.list[1].strength += 2
+	Actor('Katka', 2, female = True)
 
 demo()
